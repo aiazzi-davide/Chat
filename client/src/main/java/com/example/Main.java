@@ -6,6 +6,5 @@ public class Main {
         System.out.println("PROVA");
         System.out.println("ESTOCCAS");
         System.out.println("ESDRAGONGOGANGORANGOESRAGONGASIMO");
-        System.out.println("sgit mergegdio");
     }
 }
