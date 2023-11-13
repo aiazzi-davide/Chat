@@ -13,14 +13,18 @@ public class Main {
             BufferedReader inDalServer = new BufferedReader(new InputStreamReader(s.getInputStream()));
             DataOutputStream outVersoServer = new DataOutputStream(s.getOutputStream());
             String readline;
-            do {
-                  readline = tastieraNome.readLine();
-                  System.out.println("Connesso al server");
+               
+              System.out.println("Connesso al server");
+            System.out.println("Benvenuto, se vuoi uscire digita /exit: ");
             System.out.println("Inserisci il nome: ");
+            readline = tastieraNome.readLine();
             outVersoServer.writeBytes(readline + '\n');
             System.out.println("Per inviare a tutti digita: TUTTI. Altrimenti digita il nome del destinatario: ");
+            readline = tastieraNome.readLine();
             outVersoServer.writeBytes(readline + '\n');
-            } while (!readline.equals("ARRIVEDERCI"));
+            System.out.println("Digita il tuo messaggio: ");
+            readline = tastieraNome.readLine();
+            outVersoServer.writeBytes(readline + '\n');
         } catch (Exception e) {
            System.out.println("ERRORE");
         }
