@@ -25,11 +25,30 @@ public class ClientHandler extends Thread{
             nome = in.readLine();
             System.out.println("Client" + client.getPort() + ": " + nome);
 
-            
+            //ricevo destinatario client
+            String destinatario = in.readLine();
+            System.out.println("Client" + client.getPort() + ": " + destinatario);
 
+            for (ClientHandler clientHandler : clients) {
+                if(clientHandler.nome.equals(destinatario)){
+                    
+                    break;
+                }
+            }
             client.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    /*public String getClientFromName(String destinatario) {
+        for (ClientHandler clientHandler : clients) {
+                if(clientHandler.nome.equals(destinatario)){
+                    return "null";
+                }
+            }
+    }*/
+    public Socket getClient(){
+        return client;
     }
 }
