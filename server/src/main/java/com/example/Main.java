@@ -17,6 +17,7 @@ public class Main {
                 thread.start();
                 clients.add(thread);
             }
+            
         } catch (IOException e) {
             e.printStackTrace();
         }

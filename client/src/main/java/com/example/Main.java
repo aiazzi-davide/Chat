@@ -8,25 +8,37 @@ import java.net.Socket;
 public class Main {
     public static void main(String[] args) {
         try {
-            Socket s = new Socket("10.22.9.9", 4000);
+            Socket s = new Socket("localhost", 4000);
             BufferedReader tastieraNome = new BufferedReader(new InputStreamReader(System.in));
-            BufferedReader inDalServer = new BufferedReader(new InputStreamReader(s.getInputStream()));
-            DataOutputStream outVersoServer = new DataOutputStream(s.getOutputStream());
+            BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
+            DataOutputStream out = new DataOutputStream(s.getOutputStream());
             String readline;
-               
-              System.out.println("Connesso al server");
+            
+            //messaggi benvenuto
+            System.out.println("Connesso al server");
             System.out.println("Benvenuto, se vuoi uscire digita /exit: ");
             System.out.println("Inserisci il nome: ");
+
+            //invio nome
             readline = tastieraNome.readLine();
-            outVersoServer.writeBytes(readline + '\n');
+            out.writeBytes(readline + '\n');
+
+            //da fare: gestire con thread il ricevimento dei messaggi
+
+            //invio destinatario
             System.out.println("Per inviare a tutti digita: TUTTI. Altrimenti digita il nome del destinatario: ");
             readline = tastieraNome.readLine();
-            outVersoServer.writeBytes(readline + '\n');
+            out.writeBytes(readline + '\n');
+
+            //invio messaggio
             System.out.println("Digita il tuo messaggio: ");
             readline = tastieraNome.readLine();
-            outVersoServer.writeBytes(readline + '\n');
+            out.writeBytes(readline + '\n');
+
+            
         } catch (Exception e) {
-           System.out.println("ERRORE");
+            System.out.println("ERRORE");
+           e.printStackTrace();
         }
 }
 }
