@@ -3,7 +3,12 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 
-public class ClientHandler extends Thread{
+public class ClientHandler extends Thread {
+
+    String ANSI_GREEN = "\u001B[32m";
+    String ANSI_RED = "\u001B[31m";
+    String ANSI_RESET = "\u001B[0m";
+
     private Socket client;
     private Socket client2;
     private BufferedReader in1;
@@ -54,7 +59,7 @@ public class ClientHandler extends Thread{
             do {
                 //ricevo messaggio client
                 messaggio = in1.readLine();
-                System.out.println("Client" + client.getPort() + ": " + messaggio);
+                System.out.println("Client" + client.getPort() + ": " + messaggio + " -> " + destinatario);
 
                 //controllo se destinatario è tutti
                 if (destinatario.equals("TUTTI")) {
@@ -63,9 +68,10 @@ public class ClientHandler extends Thread{
                     out2.writeBytes(nome + ": " + messaggio + '\n');
                 }
                 
-            } while (!messaggio.equals("/exit"));
+            } while (!messaggio.equals("/exit")); // da cambiare: /exit arriva dal client2
 
             client.close();
+            System.out.println(ANSI_RED + "Client" + client.getPort() + " disconnected");
         } catch (IOException e) {
             e.printStackTrace();
         }
