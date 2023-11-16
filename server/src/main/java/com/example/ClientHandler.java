@@ -11,7 +11,10 @@ public class ClientHandler extends Thread{
     private BufferedReader in2;
     private DataOutputStream out2;
     ArrayList<ClientHandler> clients;
-    String nome;
+    String nome = "";
+    String destinatario = "";
+    String messaggio = "";
+
     public ClientHandler(Socket client, ArrayList<ClientHandler> clients){
         this.client = client;
         System.out.println("New client connected on port " + client.getPort());
@@ -27,29 +30,41 @@ public class ClientHandler extends Thread{
             nome = in1.readLine();
             System.out.println("Client" + client.getPort() + ": " + nome);
 
-            //ricevo destinatario client
-            String destinatario = in1.readLine();
-            System.out.println("Client" + client.getPort() + ": " + destinatario);
+            do {
+                //ricevo destinatario client
+                destinatario = in1.readLine();
+                System.out.println("Client" + client.getPort() + ": " + destinatario);
 
-            //inizializzo il client2
-            client2 = getClientFromName(destinatario);
+                //controllo se destinatario è tutti
+                if (destinatario.equals("TUTTI")) {
+                    out1.writeBytes("Prono per comunicare!\n");
+                    break;
+                }
+                //inizializzo il client2
+                client2 = getClientFromName(destinatario);
+
+            } while (client2 == null);
+            
 
             if (client2 != null) {
                 in2 = new BufferedReader(new InputStreamReader(client2.getInputStream()));
                 out2 = new DataOutputStream(client2.getOutputStream());
             }
-            
-            //ricevo messaggio client
-            String messaggio = in1.readLine();
-            System.out.println("Client" + client.getPort() + ": " + messaggio);
 
-            //controllo se destinatario è tutti
-            if (destinatario.equals("TUTTI")) {
-                inoltroBroadcast(nome + ": " + messaggio);
-            } else {
-                out2.writeBytes(nome + ": " + messaggio + '\n');
-            }
-            
+            do {
+                //ricevo messaggio client
+                messaggio = in1.readLine();
+                System.out.println("Client" + client.getPort() + ": " + messaggio);
+
+                //controllo se destinatario è tutti
+                if (destinatario.equals("TUTTI")) {
+                    inoltroBroadcast(nome + ": " + messaggio);
+                } else {
+                    out2.writeBytes(nome + ": " + messaggio + '\n');
+                }
+                
+            } while (!messaggio.equals("/exit"));
+
             client.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -60,16 +75,24 @@ public class ClientHandler extends Thread{
         try {
             //controllo se vuoto
             if (clients.isEmpty()) {
-                out1.writeBytes("nessun altro host si è connesso\n");
+                out1.writeBytes("Errore: nessun altro host si è connesso\n");
+                return null;
+            }
+
+            //controllo se destinatario è se stesso
+            if (destinatario.equals(nome)) {
+                out1.writeBytes("Errore: non puoi inviare messaggi a te stesso :/ \n");
                 return null;
             }
 
             //controllo se destinatario esiste
             for (ClientHandler c : clients) {
                 if (c.getNome().equals(destinatario)) {
+                    out1.writeBytes("Prono per comunicare!\n");
                     return c.getClient();
                 }
             }
+            out1.writeBytes("Errore: destinatario non trovato\n");
         } catch (IOException e) {
             e.printStackTrace();
         }

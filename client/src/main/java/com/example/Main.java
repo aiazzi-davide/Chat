@@ -25,19 +25,30 @@ public class Main {
 
             //da fare: gestire con thread il ricevimento dei messaggi
 
-            //invio destinatario
-            System.out.println("Per inviare a tutti digita: TUTTI. Altrimenti digita il nome del destinatario: ");
-            readline = tastieraNome.readLine();
-            out.writeBytes(readline + '\n');
-
-            //invio messaggio
-            System.out.println("Digita il tuo messaggio: ");
-            readline = tastieraNome.readLine();
-            out.writeBytes(readline + '\n');
-
             
+            do {
+                //invio destinatario
+                System.out.println("Per inviare a tutti digita: TUTTI. Altrimenti digita il nome del destinatario: ");
+                readline = tastieraNome.readLine();
+                out.writeBytes(readline + '\n');
+
+                //ricevo conferma
+                readline = in.readLine();
+                System.out.println(readline);
+            } while (readline.contains("Errore:"));
+            
+
+            do {
+                //invio messaggio
+                System.out.println("Digita il tuo messaggio: ");
+                readline = tastieraNome.readLine();
+                out.writeBytes(readline + '\n');
+            } while (!readline.contains("/exit"));
+            
+
+            s.close();
         } catch (Exception e) {
-            System.out.println("ERRORE");
+            System.out.println("Errore generico ");
            e.printStackTrace();
         }
 }
