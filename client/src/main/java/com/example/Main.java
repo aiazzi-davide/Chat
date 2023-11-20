@@ -23,8 +23,9 @@ public class Main {
             readline = tastieraNome.readLine();
             out.writeBytes(readline + '\n');
 
-            //da fare: gestire con thread il ricevimento dei messaggi
-
+            //gestione con thread il ricevimento dei messaggi
+            clientThread thread = new clientThread(s);
+            thread.start();
             
             do {
                 //invio destinatario
@@ -32,9 +33,6 @@ public class Main {
                 readline = tastieraNome.readLine();
                 out.writeBytes(readline + '\n');
 
-                //ricevo conferma
-                readline = in.readLine();
-                System.out.println(readline);
             } while (readline.contains("Errore:"));
             
 
