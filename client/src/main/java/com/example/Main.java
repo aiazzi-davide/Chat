@@ -27,21 +27,17 @@ public class Main {
             System.out.println("Per iniziare inserisci il tuo nome:");
             
 
-            //invio nome
-            readline = tastieraNome.readLine();
-            out.writeBytes(readline + '\n');
-
             //gestione con thread il ricevimento dei messaggi
             clientThread thread = new clientThread(s);
             thread.start();
-            
-            /* do {
-                //invio destinatario
+
+            //invio nome
+            do {
                 readline = tastieraNome.readLine();
                 out.writeBytes(readline + '\n');
+            } while (thread.getErrore());
 
-            } while (readline.contains("Errore:"));
-             */
+            
 
             do {
                 //invio messaggio
@@ -50,12 +46,10 @@ public class Main {
                 out.writeBytes(readline + '\n');
             } while (!readline.contains("/exit"));
 
-          
-
             s.close();
         } catch (Exception e) {
             System.out.println("Errore generico ");
-           e.printStackTrace();
+            e.printStackTrace();
         }
-}
+    }
 }

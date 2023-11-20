@@ -7,6 +7,7 @@ public class ClientHandler extends Thread {
 
     String ANSI_GREEN = "\u001B[32m";
     String ANSI_RED = "\u001B[31m";
+    String ANSI_BLUE = "\u001B[34m";
     String ANSI_RESET = "\u001B[0m";
 
     private Socket client;
@@ -35,6 +36,15 @@ public class ClientHandler extends Thread {
             nome = in1.readLine();
             System.out.println("Client" + client.getPort() + ": " + nome);
 
+            //controllo se il nome è già stato usato
+            for (ClientHandler c : clients) {
+                if (c.getNome().equals(nome)) {
+                    out1.writeBytes(ANSI_RED + "Errore: nome già utilizzato\n" + ANSI_RESET);
+                    out1.writeBytes("CODICE_ERRORE: 0001\n");
+                    return;
+                }
+            }
+
             do {
                 //ricezione messaggio
                 messaggio = in1.readLine();
@@ -42,6 +52,7 @@ public class ClientHandler extends Thread {
                 
 
                 //controllo comandi ricevuti
+
                 //comando /tell
                 if (messaggio.contains("/tell")) {
 
@@ -64,20 +75,20 @@ public class ClientHandler extends Thread {
                             out2.writeBytes(nome + ": " + messaggio.substring(messaggio.indexOf("//") + 2) + '\n');
                         }
                     } else {
-                        out1.writeBytes(ANSI_RED + "Errore: comando non riconosciuto\n");
+                        out1.writeBytes(ANSI_RED + "Errore: comando non riconosciuto\n" + ANSI_RESET);
                     }
                 } else if (messaggio.contains("/lista")) {
                     System.out.println("Client" + client.getPort() + ": " + messaggio);
-                    out1.writeBytes("Lista client connessi:\n");
+                    out1.writeBytes(ANSI_GREEN + "Lista client connessi:\n" + ANSI_RESET);
                     for (ClientHandler c : clients) {
-                        out1.writeBytes(c.getNome() + '\n');
+                        out1.writeBytes(ANSI_BLUE + c.getNome() + ANSI_RESET + '\n');
                     }
                 } else if (messaggio.contains("/exit")) {
                     System.out.println("Client" + client.getPort() + ": " + messaggio);
-                    out1.writeBytes(ANSI_RED + "Disconnessione in corso...\n");
+                    out1.writeBytes(ANSI_RED + "Disconnessione in corso...\n" + ANSI_RESET);
                     break;
                 } else {
-                    out1.writeBytes(ANSI_RED + "Errore: comando non riconosciuto\n");
+                    out1.writeBytes(ANSI_RED + "Errore: comando non riconosciuto\n" + ANSI_RESET);
                 }
 
             } while (!messaggio.contains("/exit"));
@@ -115,7 +126,7 @@ public class ClientHandler extends Thread {
                     out2.writeBytes(nome + ": " + messaggio + '\n');
                 }
                 
-            } while (!messaggio.equals("/exit")); // da cambiare: /exit arriva dal client2 */
+            } while (!messaggio.equals("/exit"));*/
 
             client.close();
             System.out.println(ANSI_RED + "Client" + client.getPort() + " disconnected");
@@ -128,14 +139,14 @@ public class ClientHandler extends Thread {
         try {
             //controllo se vuoto
             if (clients.isEmpty()) {
-                out1.writeBytes(ANSI_RED + "Errore: nessun altro host si è connesso\n");
+                out1.writeBytes(ANSI_RED + "Errore: nessun altro host si è connesso\n" + ANSI_RESET);
                 return null;
             }
             //fare controllino per lo stesso nome
 
             //controllo se destinatario è se stesso
             if (destinatario.equals(nome)) {
-                out1.writeBytes(ANSI_RED + "Errore: non puoi inviare messaggi a te stesso :/ \n");
+                out1.writeBytes(ANSI_RED + "Errore: non puoi inviare messaggi a te stesso :/ \n" + ANSI_RESET);
                 return null;
             }
 
@@ -145,7 +156,7 @@ public class ClientHandler extends Thread {
                     return c.getClient();
                 }
             }
-            out1.writeBytes(ANSI_RED + "Errore: destinatario non trovato\n");
+            out1.writeBytes(ANSI_RED + "Errore: destinatario non trovato\n" + ANSI_RESET);
         } catch (IOException e) {
             e.printStackTrace();
         }
