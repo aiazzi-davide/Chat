@@ -43,8 +43,10 @@ public class Main {
                 System.out.println("Digita il tuo messaggio: ");
                 readline = tastieraNome.readLine();
                 out.writeBytes(readline + '\n');
+                /*System.out.println(in.readLine());*/
             } while (!readline.contains("/exit"));
-            
+
+          
 
             s.close();
         } catch (Exception e) {

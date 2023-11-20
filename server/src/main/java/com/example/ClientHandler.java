@@ -42,7 +42,7 @@ public class ClientHandler extends Thread {
 
                 //controllo se destinatario è tutti
                 if (destinatario.equals("TUTTI")) {
-                    out1.writeBytes("Prono per comunicare!\n");
+                    out1.writeBytes("Pronto per comunicare!\n");
                     break;
                 }
                 //inizializzo il client2
@@ -84,6 +84,7 @@ public class ClientHandler extends Thread {
                 out1.writeBytes("Errore: nessun altro host si è connesso\n");
                 return null;
             }
+            //fare controllino per lo stesso nome
 
             //controllo se destinatario è se stesso
             if (destinatario.equals(nome)) {
@@ -94,7 +95,7 @@ public class ClientHandler extends Thread {
             //controllo se destinatario esiste
             for (ClientHandler c : clients) {
                 if (c.getNome().equals(destinatario)) {
-                    out1.writeBytes("Prono per comunicare!\n");
+                    out1.writeBytes("Pronto per comunicare!\n");
                     return c.getClient();
                 }
             }
