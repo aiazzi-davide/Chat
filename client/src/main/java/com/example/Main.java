@@ -7,17 +7,25 @@ import java.net.Socket;
 
 public class Main {
     public static void main(String[] args) {
+        String ANSI_GREEN = "\u001B[32m";
+        String ANSI_RED = "\u001B[31m";
+        String ANSI_BLUE = "\u001B[34m";
+        String ANSI_RESET = "\u001B[0m";
         try {
             Socket s = new Socket("localhost", 4000);
             BufferedReader tastieraNome = new BufferedReader(new InputStreamReader(System.in));
             BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
             DataOutputStream out = new DataOutputStream(s.getOutputStream());
             String readline;
+
+            // Messaggi di benvenuto
+            System.out.println(ANSI_GREEN + "Connesso al server" + ANSI_RESET);
+            System.out.println("Benvenuto, se vuoi uscire digita " + ANSI_RED + "/exit" + ANSI_RESET + ": ");
+            System.out.println("Inserisci " + ANSI_BLUE + "/tell @[nomedestinatario]//" + ANSI_RESET + " per inviare un messaggio privato:");
+            System.out.println("Inserisci " + ANSI_BLUE + "/tell @all" + ANSI_RESET + " per inviare un messaggio a tutti i client connessi:");
+            System.out.println("Inserisci " + ANSI_BLUE + "/lista" + ANSI_RESET + " per visualizzare la lista dei client connessi:");
+            System.out.println("Per iniziare inserisci il tuo nome:");
             
-            //messaggi benvenuto
-            System.out.println("Connesso al server");
-            System.out.println("Benvenuto, se vuoi uscire digita /exit: ");
-            System.out.println("Inserisci il nome: ");
 
             //invio nome
             readline = tastieraNome.readLine();
@@ -27,21 +35,19 @@ public class Main {
             clientThread thread = new clientThread(s);
             thread.start();
             
-            do {
+            /* do {
                 //invio destinatario
-                System.out.println("Per inviare a tutti digita: TUTTI. Altrimenti digita il nome del destinatario: ");
                 readline = tastieraNome.readLine();
                 out.writeBytes(readline + '\n');
 
             } while (readline.contains("Errore:"));
-            
+             */
 
             do {
                 //invio messaggio
-                System.out.println("Digita il tuo messaggio: ");
+                System.out.println("Inserisci il messaggio:");
                 readline = tastieraNome.readLine();
                 out.writeBytes(readline + '\n');
-                /*System.out.println(in.readLine());*/
             } while (!readline.contains("/exit"));
 
           
