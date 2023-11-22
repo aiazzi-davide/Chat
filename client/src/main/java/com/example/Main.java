@@ -21,8 +21,8 @@ public class Main {
             // Messaggi di benvenuto
             System.out.println(ANSI_GREEN + "Connesso al server" + ANSI_RESET);
             System.out.println("Benvenuto, se vuoi uscire digita " + ANSI_RED + "/exit" + ANSI_RESET + ": ");
-            System.out.println("Inserisci " + ANSI_BLUE + "/tell @[nomedestinatario]//" + ANSI_RESET + " per inviare un messaggio privato:");
-            System.out.println("Inserisci " + ANSI_BLUE + "/tell @all" + ANSI_RESET + " per inviare un messaggio a tutti i client connessi:");
+            System.out.println("Inserisci " + ANSI_BLUE + "/tell @[nomedestinatario] [messaggio]" + ANSI_RESET + " per inviare un messaggio privato:");
+            System.out.println("Inserisci " + ANSI_BLUE + "/tell @all [messaggio]" + ANSI_RESET + " per inviare un messaggio a tutti i client connessi:");
             System.out.println("Inserisci " + ANSI_BLUE + "/lista" + ANSI_RESET + " per visualizzare la lista dei client connessi:");
             System.out.println("Per iniziare inserisci il tuo nome:");
             
@@ -35,13 +35,13 @@ public class Main {
             do {
                 readline = tastieraNome.readLine();
                 out.writeBytes(readline + '\n');
-            } while (thread.getErrore());
+            } while (thread.getError());
 
             
 
             do {
                 //invio messaggio
-                System.out.println("Inserisci il messaggio:");
+                //System.out.println("Inserisci il messaggio:");
                 readline = tastieraNome.readLine();
                 out.writeBytes(readline + '\n');
             } while (!readline.contains("/exit"));

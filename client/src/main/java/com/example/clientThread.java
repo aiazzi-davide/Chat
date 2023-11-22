@@ -16,19 +16,16 @@ public class clientThread extends Thread{
             try {
                 in = new BufferedReader(new InputStreamReader(client.getInputStream()));
                 String messaggio = in.readLine();
-                if (messaggio.contains("CODICE_ERRORE: 0001")) {
+                if (messaggio.contains("0001")) {
                     errore = true;
                 } else System.out.println(messaggio);
-            } catch (IOException e) {
-                System.out.println("Errore di I/O");
-                e.printStackTrace();
             } catch (Exception e) {
                 System.out.println("Errore generico");
                 e.printStackTrace();
             }
         }
     }
-    public boolean getErrore(){
+    public boolean getError(){
         x = errore;
         errore = false;
         return x;

@@ -14,8 +14,9 @@ public class Main {
             System.out.println(ANSI_GREEN + "Server started" + ANSI_RESET);
             while (true) {
                 ClientHandler thread = new ClientHandler(server.accept(), clients);
-                thread.start();
                 clients.add(thread);
+                thread.start();
+                
             }
             
         } catch (IOException e) {

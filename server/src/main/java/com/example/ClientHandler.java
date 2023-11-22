@@ -8,6 +8,9 @@ public class ClientHandler extends Thread {
     String ANSI_GREEN = "\u001B[32m";
     String ANSI_RED = "\u001B[31m";
     String ANSI_BLUE = "\u001B[34m";
+    String ANSI_YELLOW = "\u001B[33m";   
+    String ANSI_PURPLE = "\u001B[35m";  
+    String ANSI_ORANGE = "\u001B[36m";
     String ANSI_RESET = "\u001B[0m";
 
     private Socket client;
@@ -18,6 +21,7 @@ public class ClientHandler extends Thread {
     private DataOutputStream out2;
     ArrayList<ClientHandler> clients;
     String nome = "";
+    String nome1 = "";
     String destinatario = "";
     String messaggio = "";
 
@@ -32,18 +36,21 @@ public class ClientHandler extends Thread {
             in1 = new BufferedReader(new InputStreamReader(client.getInputStream()));
             out1 = new DataOutputStream(client.getOutputStream());
 
-            //ricevo nome client
-            nome = in1.readLine();
-            System.out.println("Client" + client.getPort() + ": " + nome);
+            do {
+                
+                //ricevo nome client
+                nome1 = in1.readLine();
+                System.out.println(ANSI_YELLOW + "[Client" + client.getPort() + "]" + ANSI_RESET + ": " + nome1);
 
             //controllo se il nome è già stato usato
-            for (ClientHandler c : clients) {
-                if (c.getNome().equals(nome)) {
-                    out1.writeBytes(ANSI_RED + "Errore: nome già utilizzato\n" + ANSI_RESET);
-                    out1.writeBytes("CODICE_ERRORE: 0001\n");
-                    return;
-                }
-            }
+            } while (checkNome(nome1));
+
+
+            //salvo nome client
+            nome = nome1;
+            //invio a tutti che si è connesso un nuovo client
+            inoltroBroadcast(ANSI_BLUE + nome + ANSI_RESET + " benvenuto nella chat!\n", ANSI_GREEN + "[SERVER]" + ANSI_RESET );
+            System.out.println(ANSI_GREEN + "Nuovo client connesso: " + ANSI_BLUE + nome + ANSI_RESET + "\n");
 
             do {
                 //ricezione messaggio
@@ -59,36 +66,42 @@ public class ClientHandler extends Thread {
                     //comando /tell @all
                     if (messaggio.contains("@all")) {
                         System.out.println("Client" + client.getPort() + ": " + messaggio + " -> " + "tutti");
-                        inoltroBroadcast(messaggio);
+                        inoltroBroadcast(messaggio, nome);
 
                     //comando /tell @destinatario
                     } else if (messaggio.contains("@")){
 
                         //salvo destinatario client
-                        destinatario = messaggio.substring(messaggio.indexOf("@") + 1, messaggio.indexOf("//"));
+                        String parts[] = messaggio.split(" ", 3);
+                        if (parts.length < 3) {
+                            out1.writeBytes(ANSI_RED + "Errore: formato del comando non valido\n" + ANSI_RESET);
+                            continue;
+                        }
+                        destinatario = parts[1].substring(1); // Rimuove il simbolo '@'
+                        String messaggio = parts[2];
                         client2 = getClientFromName(destinatario);
 
                         if (client2 != null) {
                             in2 = new BufferedReader(new InputStreamReader(client2.getInputStream()));
                             out2 = new DataOutputStream(client2.getOutputStream());
-                            System.out.println("Client" + client.getPort() + ": " + messaggio + " -> " + destinatario);
-                            out2.writeBytes(nome + ": " + messaggio.substring(messaggio.indexOf("//") + 2) + '\n');
+                            System.out.println(ANSI_YELLOW + "[" + nome + "]" + ANSI_RESET  + ": " + messaggio + ANSI_PURPLE + " -> " + ANSI_BLUE + destinatario + ANSI_RESET);
+                            out2.writeBytes(ANSI_YELLOW + "[" + nome + "]" + ANSI_RESET  + ": " + messaggio + '\n');
                         }
                     } else {
-                        out1.writeBytes(ANSI_RED + "Errore: comando non riconosciuto\n" + ANSI_RESET);
+                        out1.writeBytes(ANSI_RED + "Errore: sintassi non corretta: assicurati di aver inserito @ prima del nome" + ANSI_RESET + '\n');
                     }
                 } else if (messaggio.contains("/lista")) {
                     System.out.println("Client" + client.getPort() + ": " + messaggio);
-                    out1.writeBytes(ANSI_GREEN + "Lista client connessi:\n" + ANSI_RESET);
+                    out1.writeBytes(ANSI_GREEN + "Lista client connessi:" + ANSI_RESET + '\n');
                     for (ClientHandler c : clients) {
                         out1.writeBytes(ANSI_BLUE + c.getNome() + ANSI_RESET + '\n');
                     }
                 } else if (messaggio.contains("/exit")) {
                     System.out.println("Client" + client.getPort() + ": " + messaggio);
-                    out1.writeBytes(ANSI_RED + "Disconnessione in corso...\n" + ANSI_RESET);
+                    out1.writeBytes(ANSI_ORANGE + "Disconnessione in corso..." + ANSI_RESET + '\n');
                     break;
                 } else {
-                    out1.writeBytes(ANSI_RED + "Errore: comando non riconosciuto\n" + ANSI_RESET);
+                    out1.writeBytes(ANSI_RED + "Errore: comando non riconosciuto" + ANSI_RESET + '\n');
                 }
 
             } while (!messaggio.contains("/exit"));
@@ -129,7 +142,7 @@ public class ClientHandler extends Thread {
             } while (!messaggio.equals("/exit"));*/
 
             client.close();
-            System.out.println(ANSI_RED + "Client" + client.getPort() + " disconnected");
+            System.out.println(ANSI_RED + "Client" + client.getPort() + " disconnected" + ANSI_RESET + "\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -139,14 +152,14 @@ public class ClientHandler extends Thread {
         try {
             //controllo se vuoto
             if (clients.isEmpty()) {
-                out1.writeBytes(ANSI_RED + "Errore: nessun altro host si è connesso\n" + ANSI_RESET);
+                out1.writeBytes(ANSI_RED + "Errore: nessun altro host si è connesso" + ANSI_RESET + '\n');
                 return null;
             }
             //fare controllino per lo stesso nome
 
             //controllo se destinatario è se stesso
             if (destinatario.equals(nome)) {
-                out1.writeBytes(ANSI_RED + "Errore: non puoi inviare messaggi a te stesso :/ \n" + ANSI_RESET);
+                out1.writeBytes(ANSI_RED + "Errore: non puoi inviare messaggi a te stesso :/" + ANSI_RESET + '\n');
                 return null;
             }
 
@@ -156,23 +169,37 @@ public class ClientHandler extends Thread {
                     return c.getClient();
                 }
             }
-            out1.writeBytes(ANSI_RED + "Errore: destinatario non trovato\n" + ANSI_RESET);
+            out1.writeBytes(ANSI_RED + "Errore: destinatario non trovato" + ANSI_RESET + '\n');
         } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
     }
     
-    public void inoltroBroadcast(String messaggio) {
+    public void inoltroBroadcast(String messaggio, String nome) { //da fixare: il destinatario riceve /tell @all
         try {
             for (ClientHandler c : clients) {
                 if (c.getClient() != client) {
-                    c.getout().writeBytes(messaggio + '\n');
+                    c.getout().writeBytes(ANSI_PURPLE + "[ALL] " + ANSI_YELLOW + "[" + nome + "]" + ANSI_RESET + ": " + messaggio + '\n');
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    public boolean checkNome(String nome1) {
+        try {
+            for (ClientHandler c : clients) {
+                if (c.getNome().equals(nome1)) {
+                    out1.writeBytes(ANSI_RED + "Errore: nome già utilizzato" + ANSI_RESET + '\n');
+                    out1.writeBytes("CODICE_ERRORE: 0001\n");
+                    return true;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public Socket getClient() {
