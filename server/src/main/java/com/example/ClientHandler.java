@@ -58,7 +58,7 @@ public class ClientHandler extends Thread {
                 //controllo messaggio
                 parts = messaggio.split(" ", 3);
                     if (parts.length == 0) {
-                        out1.writeBytes(ANSI_RED + "Errore: formato del comando non valido\n" + ANSI_RESET);
+                        out1.writeBytes(ANSI_RED + "Errore: formato del comando non valido" + ANSI_RESET + '\n');
                         continue;
                     }
                 //controllo comandi ricevuti
@@ -68,7 +68,7 @@ public class ClientHandler extends Thread {
                             //comando /tell @all
                             //controllo se il messaggio è corretto
                             if (parts.length < 3) {
-                                    out1.writeBytes(ANSI_RED + "Errore: formato del comando non valido\n" + ANSI_RESET);
+                                    out1.writeBytes(ANSI_RED + "Errore: formato del comando non valido" + ANSI_RESET + '\n');
                                     continue;
                                 }
                             if (parts[1].equals("@all")) {
@@ -96,7 +96,7 @@ public class ClientHandler extends Thread {
                         case "/lista":
                             //controllo se il messaggio è corretto
                             if (parts.length != 1) {
-                                    out1.writeBytes(ANSI_RED + "Errore: formato del comando non valido\n" + ANSI_RESET);
+                                    out1.writeBytes(ANSI_RED + "Errore: formato del comando non valido" + ANSI_RESET + '\n');
                                     continue;
                                 }
 
@@ -110,7 +110,12 @@ public class ClientHandler extends Thread {
                         case "/exit":
                             System.out.println(ANSI_YELLOW + "[" + nome + "]" + ANSI_RESET  + ": " + messaggio);
                             clients.remove(this);
-                            out1.writeBytes(ANSI_ORANGE + "Disconnessione in corso..." + ANSI_RESET + '\n');
+                            //out1.writeBytes("CODICE_ERRORE: 0001\n");
+                            inoltroBroadcast(ANSI_BLUE + nome + ANSI_RESET + " ha lasciato la chat", ANSI_GREEN + "[SERVER]" + ANSI_RESET + '\n');
+                            System.out.println(ANSI_ORANGE + "[" + nome + "]:" + " disconnected" + ANSI_RESET + "\n");
+                            in1.close();
+                            out1.close();
+                            client.close();
                         break;
 
                         default:
@@ -118,12 +123,8 @@ public class ClientHandler extends Thread {
                         break;
                     }
 
-            } while (!parts[0].contains("/exit"));
-
-            out1.writeBytes(ANSI_ORANGE + "Disconnessione in corso..." + ANSI_RESET + '\n');
-            out1.writeBytes("CODICE_ERRORE: 0001\n");
-            client.close();
-            System.out.println(ANSI_ORANGE + nome + " disconnected" + ANSI_RESET + "\n");
+            } while (!parts[0].equals("/exit"));  
+            return;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -161,7 +162,7 @@ public class ClientHandler extends Thread {
         try {
             for (ClientHandler c : clients) {
                 if (c.getClient() != client) {
-                    c.getout().writeBytes(ANSI_PURPLE + "[ALL] " + nome + ANSI_RESET + ": " + messaggio + '\n');
+                    c.getout().writeBytes(ANSI_PURPLE + "[ALL]" + nome + ANSI_RESET + ": " + messaggio + '\n');
                 }
             }
         } catch (IOException e) {

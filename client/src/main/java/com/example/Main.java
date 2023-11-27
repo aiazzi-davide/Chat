@@ -34,7 +34,7 @@ public class Main {
             do {
                 readline = tastieraNome.readLine();
                 out.writeBytes(readline + '\n');
-            } while (thread.getError() == 0001);
+            } while (thread.getError().equals("0002"));
 
             
 
@@ -43,7 +43,7 @@ public class Main {
                 //System.out.println("Inserisci il messaggio:");
                 readline = tastieraNome.readLine();
                 out.writeBytes(readline + '\n');
-            } while (thread.getError() == 0000);
+            } while (!readline.equals("/exit"));
             System.out.println(ANSI_RED + "Disconnessione in corso..." + ANSI_RESET);
             System.exit(0);
         } catch (Exception e) {

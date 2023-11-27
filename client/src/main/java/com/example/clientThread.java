@@ -6,39 +6,37 @@ import java.net.Socket;
 public class clientThread extends Thread{
     private Socket client;
     BufferedReader in;
-    int errore;
+    String errore = "0000";
     boolean exit = false;
     public clientThread(Socket client){
         this.client = client;
     }
 
-    public void terminate()  
-    {  
-        exit = true;
-    }
-
     public void run(){
-        while (true) {
-            try {
-                in = new BufferedReader(new InputStreamReader(client.getInputStream()));
+        try {
+        in = new BufferedReader(new InputStreamReader(client.getInputStream()));
+        while (errore != "0001") {
+            
+                
                 String messaggio = in.readLine();
                 if (messaggio.contains("0002")) {
-                    errore = 0002;
+                    errore = "0002";
                 } else if (messaggio.contains("0001")) {
-                    errore = 0001;
+                    errore = "0001";
                     in.close();
                     client.close();
                 } else  {
                     System.out.println(messaggio);
-                    errore = 0000;
+                    errore = "0000";
                 }
-            } catch (Exception e) {
+            } 
+        return;
+        }catch (Exception e) {
                 System.out.println("Errore generico");
                 e.printStackTrace();
             }
-        }
     }
-    public int getError(){
+    public String getError(){
         return errore;
     }
 }
