@@ -14,7 +14,6 @@ public class Main {
         try {
             Socket s = new Socket("localhost", 4000);
             BufferedReader tastieraNome = new BufferedReader(new InputStreamReader(System.in));
-            BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
             DataOutputStream out = new DataOutputStream(s.getOutputStream());
             String readline;
 
@@ -35,7 +34,7 @@ public class Main {
             do {
                 readline = tastieraNome.readLine();
                 out.writeBytes(readline + '\n');
-            } while (thread.getError());
+            } while (thread.getError() == 0001);
 
             
 
@@ -44,9 +43,9 @@ public class Main {
                 //System.out.println("Inserisci il messaggio:");
                 readline = tastieraNome.readLine();
                 out.writeBytes(readline + '\n');
-            } while (!readline.contains("/exit"));
-
-            s.close();
+            } while (thread.getError() == 0000);
+            System.out.println(ANSI_RED + "Disconnessione in corso..." + ANSI_RESET);
+            System.exit(0);
         } catch (Exception e) {
             System.out.println("Errore generico ");
             e.printStackTrace();
