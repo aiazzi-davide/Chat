@@ -31,10 +31,17 @@ public class Main {
             thread.start();
 
             //invio nome
+            boolean nomeValido = false;
             do {
                 readline = tastieraNome.readLine();
-                out.writeBytes(readline + '\n');
-            } while (thread.getError().equals("0002"));
+                // Controllo se il nome contiene uno o più spazi
+                if (readline.matches(".*\\s+.*")) {
+                    System.out.println(ANSI_RED + "Il nome non può contenere spazi. Riprova." + ANSI_RESET);
+                } else {
+                    nomeValido = true;
+                    out.writeBytes(readline + '\n');
+                }
+            } while (!nomeValido || thread.getError().equals("0002"));
 
             
 
