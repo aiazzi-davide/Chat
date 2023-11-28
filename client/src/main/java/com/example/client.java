@@ -18,6 +18,7 @@ public class client {
         String ANSI_RED = "\u001B[31m";
         String ANSI_BLUE = "\u001B[34m";
         String ANSI_RESET = "\u001B[0m";
+        String commandPattern = "^(/|@all|all).*$";
         try {
             Socket s = new Socket(server, port);
             BufferedReader tastieraNome = new BufferedReader(new InputStreamReader(System.in));
@@ -44,7 +45,10 @@ public class client {
                 // Controllo se il nome contiene uno o più spazi
                 if (readline.matches(".*\\s+.*")) {
                     System.out.println(ANSI_RED + "Il nome non può contenere spazi. Riprova." + ANSI_RESET);
-                } else {
+                } else if (readline.matches(commandPattern) || readline.equals("")) {
+                    System.out.println(ANSI_RED + "nome non valido" + ANSI_RESET);
+                }
+                else {
                     nomeValido = true;
                     out.writeBytes(readline + '\n');
                 }
@@ -63,7 +67,6 @@ public class client {
             System.exit(0);
         } catch (Exception e) {
             System.out.println("Errore generico ");
-            e.printStackTrace();
         }
     }
 }

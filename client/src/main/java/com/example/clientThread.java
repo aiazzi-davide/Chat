@@ -37,8 +37,7 @@ public class clientThread extends Thread{
             } 
             return;
         } catch (Exception e) {
-            System.out.println("Errore generico");
-            e.printStackTrace();
+            System.out.println("Errore di connessione");
         }
     }
     public String getError(){
