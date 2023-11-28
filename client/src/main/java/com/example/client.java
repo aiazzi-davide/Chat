@@ -4,6 +4,11 @@ import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 
 public class client {
     String server;
@@ -24,6 +29,7 @@ public class client {
             BufferedReader tastieraNome = new BufferedReader(new InputStreamReader(System.in));
             DataOutputStream out = new DataOutputStream(s.getOutputStream());
             String readline;
+            String Secretkey = "1234567890123456";
 
             // Messaggi di benvenuto
             System.out.println(ANSI_GREEN + "Connesso al server" + ANSI_RESET);
@@ -50,6 +56,7 @@ public class client {
                 }
                 else {
                     nomeValido = true;
+                    readline = encryptMessage(readline, Secretkey);
                     out.writeBytes(readline + '\n');
                 }
             } while (!nomeValido || thread.getError().equals("0002"));
@@ -60,6 +67,7 @@ public class client {
                 //invio messaggio
                 //System.out.println("Inserisci il messaggio:");
                 readline = tastieraNome.readLine();
+                readline = encryptMessage(readline, Secretkey);
                 out.writeBytes(readline + '\n');
 
             } while (!readline.equals("/exit"));
@@ -67,6 +75,19 @@ public class client {
             System.exit(0);
         } catch (Exception e) {
             System.out.println("Errore generico ");
+        }
+    }
+    //metodo per criptare il messaggio
+    public String encryptMessage(String message, String secretKey) {
+        try{
+        SecretKeySpec key = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), "AES");
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.ENCRYPT_MODE, key);
+        byte[] encryptedMessageBytes = cipher.doFinal(message.getBytes(StandardCharsets.UTF_8));
+        return Base64.getEncoder().encodeToString(encryptedMessageBytes);
+        } catch (Exception e) {
+            System.out.println("Errore di criptazione");
+            return null;
         }
     }
 }

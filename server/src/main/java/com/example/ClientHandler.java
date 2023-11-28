@@ -2,6 +2,10 @@ package com.example;
 import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 public class ClientHandler extends Thread {
 
@@ -12,6 +16,7 @@ public class ClientHandler extends Thread {
     String ANSI_PURPLE = "\u001B[35m";  
     String ANSI_ORANGE = "\u001B[38;5;208m";
     String ANSI_RESET = "\u001B[0m";
+
 
     private Socket client;
     private Socket client2;
@@ -25,6 +30,9 @@ public class ClientHandler extends Thread {
     String destinatario = "";
     String messaggio = "";
     String list = "";
+
+    String encryptedMessage = "";
+    String Secretkey = "1234567890123456";
 
     public ClientHandler(Socket client, ArrayList<ClientHandler> clients){
         this.client = client;
@@ -40,7 +48,7 @@ public class ClientHandler extends Thread {
             do {
                 
                 //ricevo nome client
-                nome1 = in1.readLine();
+                nome1 = decryptMessage(in1.readLine(), Secretkey);
                 System.out.println(ANSI_YELLOW + "[Client" + client.getPort() + "]" + ANSI_RESET + ": " + nome1);
 
             //controllo se il nome è già stato usato
@@ -55,11 +63,13 @@ public class ClientHandler extends Thread {
 
             do {
                 //ricezione messaggio
-                messaggio = in1.readLine().trim();
+                messaggio = decryptMessage(in1.readLine(), Secretkey);
+                
                 //controllo messaggio
                 parts = messaggio.split(" ", 3);
                     if (parts.length == 0) {
-                        out1.writeBytes(ANSI_RED + "Errore: formato del comando non valido" + ANSI_RESET + '\n');
+                        encryptedMessage = encryptMessage(ANSI_RED + "Errore: formato del comando non valido" + ANSI_RESET, Secretkey);
+                        out1.writeBytes(encryptedMessage + '\n');
                         continue;
                     }
                 //controllo comandi ricevuti
@@ -69,7 +79,8 @@ public class ClientHandler extends Thread {
                             //comando /tell @all
                             //controllo se il messaggio è corretto
                             if (parts.length < 3) {
-                                    out1.writeBytes(ANSI_RED + "Errore: formato del comando non valido" + ANSI_RESET + '\n');
+                                    encryptedMessage = encryptMessage(ANSI_RED + "Errore: formato del comando non valido" + ANSI_RESET, Secretkey);
+                                    out1.writeBytes(encryptedMessage + '\n');
                                     continue;
                                 }
                             if (parts[1].equals("@all")) {
@@ -87,17 +98,20 @@ public class ClientHandler extends Thread {
                                 if (client2 != null) {
                                     out2 = new DataOutputStream(client2.getOutputStream());
                                     System.out.println(ANSI_YELLOW + "[" + nome + "]" + ANSI_RESET  + ": " + parts[2] + ANSI_PURPLE + " -> " + ANSI_BLUE + destinatario + ANSI_RESET);
-                                    out2.writeBytes(ANSI_YELLOW + "[" + nome + "]" + ANSI_RESET  + ": " + parts[2] + '\n');
+                                    encryptedMessage = encryptMessage(ANSI_YELLOW + "[" + nome + "]" + ANSI_RESET  + ": " + parts[2], Secretkey);
+                                    out2.writeBytes(encryptedMessage + '\n');
                                 }
                             } else {
-                                out1.writeBytes(ANSI_RED + "Errore: sintassi non corretta: assicurati di aver inserito @ prima del nome" + ANSI_RESET + '\n');
+                                encryptedMessage = encryptMessage(ANSI_RED + "Errore: sintassi non corretta: assicurati di aver inserito @ prima del nome" + ANSI_RESET, Secretkey);
+                                out1.writeBytes(encryptedMessage + '\n');
                             }
                         break;
 
                         case "/list":
                             //controllo se il messaggio è corretto
                             if (parts.length != 1) {
-                                    out1.writeBytes(ANSI_RED + "Errore: formato del comando non valido" + ANSI_RESET + '\n');
+                                    encryptedMessage = encryptMessage(ANSI_RED + "Errore: formato del comando non valido" + ANSI_RESET, Secretkey);
+                                    out1.writeBytes(encryptedMessage + '\n');
                                     continue;
                                 }
                             System.out.println(ANSI_YELLOW + "[" + nome + "]" + ANSI_RESET  + ": " + messaggio);
@@ -105,13 +119,13 @@ public class ClientHandler extends Thread {
                             for (ClientHandler c : clients) {
                                 list += c.getNome() + ", ";
                             }
-                            out1.writeBytes(list + ANSI_RESET + '\n');
+                            encryptedMessage = encryptMessage(list + ANSI_RESET , Secretkey);
+                            out1.writeBytes(encryptedMessage + '\n');
                         break;
 
                         case "/exit":
                             System.out.println(ANSI_YELLOW + "[" + nome + "]" + ANSI_RESET  + ": " + messaggio);
                             clients.remove(this);
-                            //out1.writeBytes("CODICE_ERRORE: 0001\n");
                             inoltroBroadcast(ANSI_BLUE + nome + ANSI_RESET + " ha lasciato la chat", ANSI_GREEN + "[SERVER]" + ANSI_RESET, false);
                             System.out.println(ANSI_ORANGE + "[" + nome + "]"+ ANSI_RESET + ": " + ANSI_RED + " disconnected" + ANSI_RESET + "\n");
                             in1.close();
@@ -120,7 +134,8 @@ public class ClientHandler extends Thread {
                         break;
 
                         default:
-                            out1.writeBytes(ANSI_RED + "Errore: comando non riconosciuto" + ANSI_RESET + '\n');
+                            encryptedMessage = encryptMessage(ANSI_RED + "Errore: comando non riconosciuto" + ANSI_RESET, Secretkey);
+                            out1.writeBytes(encryptedMessage + '\n');
                         break;
                     }
 
@@ -135,14 +150,15 @@ public class ClientHandler extends Thread {
         try {
             //controllo se vuoto
             if (clients.isEmpty()) {
-                out1.writeBytes(ANSI_RED + "Errore: nessun altro host si è connesso" + ANSI_RESET + '\n');
+                encryptedMessage = encryptMessage(ANSI_RED + "Errore: nessun altro host si è connesso" + ANSI_RESET, Secretkey);
+                out1.writeBytes(encryptedMessage + '\n');
                 return null;
             }
-            //fare controllino per lo stesso nome
 
             //controllo se destinatario è se stesso
             if (destinatario.equals(nome)) {
-                out1.writeBytes(ANSI_RED + "Errore: non puoi inviare messaggi a te stesso :/" + ANSI_RESET + '\n');
+                encryptedMessage = encryptMessage(ANSI_RED + "Errore: non puoi inviare messaggi a te stesso :/" + ANSI_RESET, Secretkey);
+                out1.writeBytes(encryptedMessage + '\n');
                 return null;
             }
 
@@ -152,7 +168,8 @@ public class ClientHandler extends Thread {
                     return c.getClient();
                 }
             }
-            out1.writeBytes(ANSI_RED + "Errore: destinatario non trovato" + ANSI_RESET + '\n');
+            encryptedMessage = encryptMessage(ANSI_RED + "Errore: destinatario non trovato" + ANSI_RESET, Secretkey);
+            out1.writeBytes(encryptedMessage + '\n');
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -161,14 +178,15 @@ public class ClientHandler extends Thread {
     
     public void inoltroBroadcast(String messaggio, String nome, boolean self) { 
         try {
+            encryptedMessage = encryptMessage(ANSI_PURPLE + "[ALL]" + nome + ANSI_RESET + ": " + messaggio, Secretkey);
             for (ClientHandler c : clients) {
                 if (c.getClient() != client) {
-                    c.getout().writeBytes(ANSI_PURPLE + "[ALL]" + nome + ANSI_RESET + ": " + messaggio + '\n');
+                    c.getout().writeBytes(encryptedMessage + '\n');
                 }
                 
             }
             if (self) {
-                    out1.writeBytes(ANSI_PURPLE + "[ALL]" + nome + ANSI_RESET + ": " + messaggio + '\n');
+                    out1.writeBytes(encryptedMessage + '\n');
                 }
         } catch (IOException e) {
             e.printStackTrace();
@@ -176,10 +194,13 @@ public class ClientHandler extends Thread {
     }
     public boolean checkNome(String nome1) {
         try {
+            
             for (ClientHandler c : clients) {
                 if (c.getNome().equals(nome1)) {
-                    out1.writeBytes(ANSI_RED + "Errore: nome già utilizzato" + ANSI_RESET + '\n');
-                    out1.writeBytes("CODICE_ERRORE: 0002\n");
+                    encryptedMessage = encryptMessage(ANSI_RED + "Errore: nome già utilizzato" + ANSI_RESET, Secretkey);
+                    out1.writeBytes(encryptedMessage + '\n');
+                    encryptedMessage = encryptMessage("CODICE_ERRORE: 0002", Secretkey);
+                    out1.writeBytes(encryptedMessage + "\n");
                     return true;
                 }
             }
@@ -188,6 +209,35 @@ public class ClientHandler extends Thread {
         }
         return false;
     }
+
+    //metodo per decriptare il messaggio
+    public String decryptMessage(String encryptedMessage, String secretKey) {
+        try{
+        SecretKeySpec key = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), "AES");
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.DECRYPT_MODE, key);
+        byte[] decryptedMessageBytes = Base64.getDecoder().decode(encryptedMessage);
+        decryptedMessageBytes = cipher.doFinal(decryptedMessageBytes);
+        return new String(decryptedMessageBytes, StandardCharsets.UTF_8);
+         } catch (Exception e) {
+            System.out.println("Errore di criptazione");
+            return null;
+        }
+    }
+    //metodo per criptare il messaggio
+    public String encryptMessage(String message, String secretKey) {
+        try{
+        SecretKeySpec key = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), "AES");
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.ENCRYPT_MODE, key);
+        byte[] encryptedMessageBytes = cipher.doFinal(message.getBytes(StandardCharsets.UTF_8));
+        return Base64.getEncoder().encodeToString(encryptedMessageBytes);
+        } catch (Exception e) {
+            System.out.println("Errore di criptazione");
+            return null;
+        }
+    }
+    
 
     public Socket getClient() {
         return client;
