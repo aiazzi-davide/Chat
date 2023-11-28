@@ -14,11 +14,12 @@ public class clientThread extends Thread{
 
     public void run(){
         try {
-        in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-        while (errore != "0001") {
-            
-                
+            in = new BufferedReader(new InputStreamReader(client.getInputStream()));
+            while (errore != "0001") {
+                //ricezione messaggio
                 String messaggio = in.readLine();
+
+                //controllo errori
                 if (messaggio.contains("0002")) {
                     errore = "0002";
                 } else if (messaggio.contains("0001")) {
@@ -26,15 +27,19 @@ public class clientThread extends Thread{
                     in.close();
                     client.close();
                 } else  {
+                    //gestione lista
+                    if (messaggio.contains("Lista client connessi:")) {
+                        messaggio = messaggio.replaceAll(", ", "\n");
+                    }
                     System.out.println(messaggio);
                     errore = "0000";
                 }
             } 
-        return;
-        }catch (Exception e) {
-                System.out.println("Errore generico");
-                e.printStackTrace();
-            }
+            return;
+        } catch (Exception e) {
+            System.out.println("Errore generico");
+            e.printStackTrace();
+        }
     }
     public String getError(){
         return errore;

@@ -24,6 +24,7 @@ public class ClientHandler extends Thread {
     String nome1 = "";
     String destinatario = "";
     String messaggio = "";
+    String list = "";
 
     public ClientHandler(Socket client, ArrayList<ClientHandler> clients){
         this.client = client;
@@ -49,8 +50,8 @@ public class ClientHandler extends Thread {
             //salvo nome client
             nome = nome1;
             //invio a tutti che si è connesso un nuovo client
-            inoltroBroadcast(ANSI_BLUE + nome + ANSI_RESET + " benvenuto nella chat!\n", ANSI_GREEN + "[SERVER]" + ANSI_RESET );
-            System.out.println(ANSI_GREEN + "Nuovo client connesso: " + ANSI_BLUE + nome + ANSI_RESET + "\n");
+            inoltroBroadcast(ANSI_BLUE + nome + ANSI_RESET + " benvenuto nella chat!\n", ANSI_GREEN + "[SERVER]" + ANSI_RESET, true);
+            System.out.println(ANSI_GREEN + "Nuovo client connesso: " + ANSI_BLUE + nome + ANSI_RESET);
 
             do {
                 //ricezione messaggio
@@ -73,7 +74,7 @@ public class ClientHandler extends Thread {
                                 }
                             if (parts[1].equals("@all")) {
                                 System.out.println(ANSI_YELLOW + "[" + nome + "]" + ANSI_RESET  + ": " + parts[2] + ANSI_PURPLE + " -> " + ANSI_BLUE + "tutti" + ANSI_RESET);
-                                inoltroBroadcast(parts[2], ANSI_YELLOW + "[" + nome + "]" + ANSI_RESET);
+                                inoltroBroadcast(parts[2], ANSI_YELLOW + "[" + nome + "]" + ANSI_RESET, false);
 
                             //comando /tell @destinatario
                             } else if (parts[1].contains("@")){
@@ -93,26 +94,26 @@ public class ClientHandler extends Thread {
                             }
                         break;
 
-                        case "/lista":
+                        case "/list":
                             //controllo se il messaggio è corretto
                             if (parts.length != 1) {
                                     out1.writeBytes(ANSI_RED + "Errore: formato del comando non valido" + ANSI_RESET + '\n');
                                     continue;
                                 }
-
                             System.out.println(ANSI_YELLOW + "[" + nome + "]" + ANSI_RESET  + ": " + messaggio);
-                            out1.writeBytes(ANSI_GREEN + "Lista client connessi:" + ANSI_RESET + '\n');
+                            list = ANSI_GREEN + "Lista client connessi:, " + ANSI_BLUE;
                             for (ClientHandler c : clients) {
-                                out1.writeBytes(c.getNome() + ANSI_RESET + '\n');
+                                list += c.getNome() + ", ";
                             }
+                            out1.writeBytes(list + ANSI_RESET + '\n');
                         break;
 
                         case "/exit":
                             System.out.println(ANSI_YELLOW + "[" + nome + "]" + ANSI_RESET  + ": " + messaggio);
                             clients.remove(this);
                             //out1.writeBytes("CODICE_ERRORE: 0001\n");
-                            inoltroBroadcast(ANSI_BLUE + nome + ANSI_RESET + " ha lasciato la chat", ANSI_GREEN + "[SERVER]" + ANSI_RESET + '\n');
-                            System.out.println(ANSI_ORANGE + "[" + nome + "]:" + " disconnected" + ANSI_RESET + "\n");
+                            inoltroBroadcast(ANSI_BLUE + nome + ANSI_RESET + " ha lasciato la chat", ANSI_GREEN + "[SERVER]" + ANSI_RESET, false);
+                            System.out.println(ANSI_ORANGE + "[" + nome + "]"+ ANSI_RESET + ": " + ANSI_RED + " disconnected" + ANSI_RESET + "\n");
                             in1.close();
                             out1.close();
                             client.close();
@@ -158,13 +159,17 @@ public class ClientHandler extends Thread {
         return null;
     }
     
-    public void inoltroBroadcast(String messaggio, String nome) { 
+    public void inoltroBroadcast(String messaggio, String nome, boolean self) { 
         try {
             for (ClientHandler c : clients) {
                 if (c.getClient() != client) {
                     c.getout().writeBytes(ANSI_PURPLE + "[ALL]" + nome + ANSI_RESET + ": " + messaggio + '\n');
                 }
+                
             }
+            if (self) {
+                    out1.writeBytes(ANSI_PURPLE + "[ALL]" + nome + ANSI_RESET + ": " + messaggio + '\n');
+                }
         } catch (IOException e) {
             e.printStackTrace();
         }
