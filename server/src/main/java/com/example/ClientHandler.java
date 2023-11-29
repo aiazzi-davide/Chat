@@ -84,9 +84,17 @@ public class ClientHandler extends Thread {
                                     continue;
                                 }
                             if (parts[1].equals("@all")) {
-                                System.out.println(ANSI_YELLOW + "[" + nome + "]" + ANSI_RESET  + ": " + parts[2] + ANSI_PURPLE + " -> " + ANSI_BLUE + "tutti" + ANSI_RESET);
-                                inoltroBroadcast(parts[2], ANSI_YELLOW + "[" + nome + "]" + ANSI_RESET, false);
-
+                                 //controllo se c'è un solo utente
+                                if (clients.size() == 1) {
+                                    encryptedMessage = encryptMessage(ANSI_RED + "Errore: non puoi inviare messaggi perchè sei da solo nella chat :/" + ANSI_RESET, Secretkey);
+                                    out1.writeBytes(encryptedMessage + '\n');
+                                    continue;
+                                }
+                                else
+                                {
+                                    System.out.println(ANSI_YELLOW + "[" + nome + "]" + ANSI_RESET  + ": " + parts[2] + ANSI_PURPLE + " -> " + ANSI_BLUE + "tutti" + ANSI_RESET);
+                                    inoltroBroadcast(parts[2], ANSI_YELLOW + "[" + nome + "]" + ANSI_RESET, false);
+                                }
                             //comando /tell @destinatario
                             } else if (parts[1].contains("@")){
 
@@ -167,6 +175,12 @@ public class ClientHandler extends Thread {
                 if (c.getNome().equals(destinatario)) {
                     return c.getClient();
                 }
+            }
+            //controllo se c'è un solo utente
+            if (clients.size() == 1) {
+                encryptedMessage = encryptMessage(ANSI_RED + "Errore: non puoi inviare messaggi perchè sei da solo nella chat :/" + ANSI_RESET, Secretkey);
+                out1.writeBytes(encryptedMessage + '\n');
+                return null;
             }
             encryptedMessage = encryptMessage(ANSI_RED + "Errore: destinatario non trovato" + ANSI_RESET, Secretkey);
             out1.writeBytes(encryptedMessage + '\n');
