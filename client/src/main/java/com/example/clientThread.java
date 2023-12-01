@@ -24,7 +24,7 @@ public class clientThread extends Thread{
             in = new BufferedReader(new InputStreamReader(client.getInputStream()));
             while (errore != "0001") {
                 //ricezione messaggio
-                String messaggio = decryptMessage(in.readLine(), SecretKey) ;
+                String messaggio = decryptMessage(in.readLine(), SecretKey);
 
                 //controllo errori
                 if (messaggio.contains("0002")) {
@@ -57,7 +57,7 @@ public class clientThread extends Thread{
         decryptedMessageBytes = cipher.doFinal(decryptedMessageBytes);
         return new String(decryptedMessageBytes, StandardCharsets.UTF_8);
          } catch (Exception e) {
-            System.out.println("Errore di criptazione");
+            System.out.println("Errore di decriptazione");
             return null;
         }
     }
