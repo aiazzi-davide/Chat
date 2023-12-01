@@ -5,14 +5,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 
 public class clientThread extends Thread{
     private Socket client;
     BufferedReader in;
-    String errore = "0000";
+    String errore = "";
+    String messaggio = "";
     String SecretKey = "1234567890123456";
     boolean exit = false;
     public clientThread(Socket client){
@@ -22,17 +22,18 @@ public class clientThread extends Thread{
     public void run(){
         try {
             in = new BufferedReader(new InputStreamReader(client.getInputStream()));
-            while (errore != "0001") {
+            while (true) {
+                
                 //ricezione messaggio
-                String messaggio = decryptMessage(in.readLine(), SecretKey);
+                messaggio = in.readLine();
+                if (messaggio == null) {
+                    continue;
+                }
+                messaggio = decryptMessage(messaggio, SecretKey);
 
                 //controllo errori
                 if (messaggio.contains("0002")) {
                     errore = "0002";
-                } else if (messaggio.contains("0001")) {
-                    errore = "0001";
-                    in.close();
-                    client.close();
                 } else  {
                     //gestione lista
                     if (messaggio.contains("Lista client connessi:")) {
@@ -41,8 +42,8 @@ public class clientThread extends Thread{
                     System.out.println(messaggio);
                     errore = "0000";
                 }
-            } 
-            return;
+            }
+            
         } catch (Exception e) {
             System.out.println("Errore di connessione");
         }
@@ -58,6 +59,7 @@ public class clientThread extends Thread{
         return new String(decryptedMessageBytes, StandardCharsets.UTF_8);
          } catch (Exception e) {
             System.out.println("Errore di decriptazione");
+            e.printStackTrace();
             return null;
         }
     }

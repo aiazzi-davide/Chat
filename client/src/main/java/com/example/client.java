@@ -24,6 +24,7 @@ public class client {
         String ANSI_BLUE = "\u001B[34m";
         String ANSI_RESET = "\u001B[0m";
         String commandPattern = "^(/|@all|all).*$";
+        String encryptedString = "";
         try {
             Socket s = new Socket(server, port);
             BufferedReader tastieraNome = new BufferedReader(new InputStreamReader(System.in));
@@ -50,16 +51,20 @@ public class client {
                 readline = tastieraNome.readLine();
                 // Controllo se il nome contiene uno o più spazi
                 if (readline.matches(".*\\s+.*")) {
-                    System.out.println(ANSI_RED + "Il nome non può contenere spazi. Riprova." + ANSI_RESET);
+                    System.out.println(ANSI_RED + "Errore: il nome non può contenere spazi" + ANSI_RESET);
                 } else if (readline.matches(commandPattern) || readline.equals("")) {
-                    System.out.println(ANSI_RED + "nome non valido" + ANSI_RESET);
+                    System.out.println(ANSI_RED + "Errore: nome non valido" + ANSI_RESET);
                 }
                 else {
                     nomeValido = true;
                     readline = encryptMessage(readline, Secretkey);
                     out.writeBytes(readline + '\n');
                 }
-            } while (!nomeValido || thread.getError().equals("0002"));
+                Thread.sleep(20);
+                if (thread.getError().equals("0002")) {
+                    nomeValido = false;
+                }
+            } while (!nomeValido);
 
             
 
@@ -67,12 +72,13 @@ public class client {
                 //invio messaggio
                 //System.out.println("Inserisci il messaggio:");
                 readline = tastieraNome.readLine();
-                readline = encryptMessage(readline, Secretkey);
-                out.writeBytes(readline + '\n');
+                encryptedString = encryptMessage(readline, Secretkey);
+                out.writeBytes(encryptedString + '\n');
 
             } while (!readline.equals("/exit"));
             System.out.println(ANSI_RED + "Disconnessione in corso..." + ANSI_RESET);
-            System.exit(0);
+            thread.interrupt();
+            System.exit(1);
         } catch (Exception e) {
             System.out.println("Errore generico ");
         }
