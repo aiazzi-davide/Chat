@@ -12,15 +12,14 @@ import java.time.LocalDateTime;
 public class ClientHandler extends Thread {
 
     //colori
-    final String ANSI_GREEN = "\u001B[32m";
+    final String ANSI_GREEN = "\033[1;32m";
     final String ANSI_RED = "\u001B[31m";
     final String ANSI_BLUE = "\u001B[34m";
-    final String ANSI_YELLOW = "\u001B[33m";   
+    final String ANSI_YELLOW = "\033[1;33m";   
     final String ANSI_PURPLE = "\033[1;35m";  
     final String ANSI_ORANGE = "\u001B[38;5;208m";
     final String ANSI_RESET = "\u001B[0m";
-    final String ANSI_CYAN_BOLD = "\033[1;36m";
-
+    final String ANSI_CYAN = "\u001B[36m";
 
     //variabili
     Socket client;
@@ -39,7 +38,7 @@ public class ClientHandler extends Thread {
     //variabili per l'orario
     DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss");  
     LocalDateTime now = LocalDateTime.now();
-    final String time = ANSI_CYAN_BOLD +"["+ dtf.format(now) + "]" + ANSI_RESET;
+    final String time = ANSI_CYAN +"["+ dtf.format(now) + "]" + ANSI_RESET;
 
     //variabili per la criptazione
     String encryptedMessage = "";

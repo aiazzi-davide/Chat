@@ -19,7 +19,7 @@ public class client {
     }
 
     public void start() {
-        String ANSI_GREEN = "\u001B[32m";
+        String ANSI_GREEN = "\033[1;32m";
         String ANSI_RED = "\u001B[31m";
         String ANSI_BLUE = "\u001B[34m";
         String ANSI_RESET = "\u001B[0m";

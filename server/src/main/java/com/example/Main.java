@@ -6,7 +6,7 @@ import java.util.ArrayList;
 public class Main {
     
     public static void main(String[] args) {
-    String ANSI_GREEN = "\u001B[32m";
+    String ANSI_GREEN = "\033[1;32m";
     String ANSI_RESET = "\u001B[0m";
     ArrayList<ClientHandler> clients = new ArrayList<ClientHandler>();
         try {
