@@ -141,7 +141,7 @@ public class ClientHandler extends Thread {
                             System.out.println(time + ANSI_YELLOW + "[" + nome + "]" + ANSI_RESET  + ": " + messaggio);
                             inoltroBroadcast( ANSI_BLUE + nome + ANSI_RESET + " ha lasciato la chat", ANSI_GREEN + "[SERVER]" + ANSI_RESET, false);
                             clients.remove(this);
-                            System.out.println(time + ANSI_ORANGE + "[" + nome + "]"+ ANSI_RESET + ": " + ANSI_RED + " disconnected" + ANSI_RESET + "\n");
+                            System.out.println(time + ANSI_YELLOW + "[" + nome + "]"+ ANSI_RESET + ": " + ANSI_RED + " disconnected" + ANSI_RESET + "\n");
                             close();
                         break;
 
@@ -153,8 +153,8 @@ public class ClientHandler extends Thread {
 
             } while (!parts[0].equals("/exit"));  
             return;
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+           System.out.println(ANSI_RED + "Errore di connessione" + ANSI_RESET);
         }
     }
 
@@ -258,7 +258,7 @@ public class ClientHandler extends Thread {
         decryptedMessageBytes = cipher.doFinal(decryptedMessageBytes);
         return new String(decryptedMessageBytes, StandardCharsets.UTF_8);
          } catch (Exception e) {
-            System.out.println("Errore di decriptazione");
+            System.out.println(ANSI_RED + "Errore di decriptazione" + ANSI_RESET);
             return null;
         }
     }
@@ -271,7 +271,7 @@ public class ClientHandler extends Thread {
         byte[] encryptedMessageBytes = cipher.doFinal(message.getBytes(StandardCharsets.UTF_8));
         return Base64.getEncoder().encodeToString(encryptedMessageBytes);
         } catch (Exception e) {
-            System.out.println("Errore di criptazione");
+            System.out.println(ANSI_RED + "Errore di criptazione" + ANSI_RESET);
             return null;
         }
     }
